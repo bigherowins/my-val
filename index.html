@@ -116,6 +116,7 @@
       margin: 10px 0;
     }
 
+    /* Reuse your existing gif sizing */
     .fireworks {
       width: min(380px, 90vw);
       margin: 0 auto;
@@ -171,7 +172,7 @@
             fill="#ff7aa2"/>
     </svg>
 
-    <h1>Remi will you be my valentine?</h1>
+    <h1 id="mainTitle">Remi will you be my valentine?</h1>
 
     <section class="button-zone" id="zone">
       <button id="yesBtn">Yes</button>
@@ -181,13 +182,19 @@
     <!-- HINT -->
     <div class="hint" id="hint">“No” seems a bit shy 😈</div>
 
-    <section class="result" id="result">
-      <h2>YAY! 🎉</h2>
+    <!-- MULTI-PAGE FLOW (title top, gif middle, CTA bottom) -->
+    <section class="result" id="flow" aria-live="polite">
+      <h2 id="flowTitle"></h2>
       <img
+        id="flowGif"
         class="fireworks"
-        src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
-        alt="Fireworks"
+        src=""
+        alt=""
       />
+      <div style="margin-top: 18px;">
+        <!-- Keep existing button styling without changing design/colors -->
+        <button id="flowCta" style="position: static; transform: none;"></button>
+      </div>
     </section>
   </main>
 
@@ -195,8 +202,12 @@
     const zone = document.getElementById("zone");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
-    const result = document.getElementById("result");
     const hint = document.getElementById("hint");
+
+    const flow = document.getElementById("flow");
+    const flowTitle = document.getElementById("flowTitle");
+    const flowGif = document.getElementById("flowGif");
+    const flowCta = document.getElementById("flowCta");
 
     /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
@@ -289,16 +300,97 @@
 
     noBtn.addEventListener("click", e => e.preventDefault());
 
+    /* ---------- INSTANT MULTI-PAGE FLOW (NO PAGINATION UI) ---------- */
+    const pages = [
+      {
+        title: "You made the right choice!",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "See The Plan",
+        onClick: "next"
+      },
+      {
+        title: 'First, you get the "It\'s been too long" treatment',
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "Get Served Top 3 favorite breakfast",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "Binge Oscar movies & chill with your favorite snacks and drink",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "Have your top 3 favorite dinner",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "Play games & dance",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "You get the IDK when next I will see you treatment",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I like this, what's next",
+        onClick: "next"
+      },
+      {
+        title: "Watch TV in bed & Sleep",
+        gif: "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        cta: "I love these! I can't wait",
+        onClick: "redirect",
+        url: "https://google.com"
+      }
+    ];
+
+    // Preload gifs so page changes feel instant.
+    (function preload() {
+      pages.forEach(p => {
+        const img = new Image();
+        img.src = p.gif;
+      });
+    })();
+
+    let pageIndex = 0;
+
+    function renderPage(i) {
+      const p = pages[i];
+      flowTitle.textContent = p.title;
+      flowGif.src = p.gif;
+      flowGif.alt = p.title;
+      flowCta.textContent = p.cta;
+      flow.style.display = "block";
+    }
+
+    flowCta.addEventListener("click", () => {
+      const p = pages[pageIndex];
+      if (p.onClick === "redirect") {
+        window.location.href = p.url;
+        return;
+      }
+      pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+      renderPage(pageIndex);
+    });
+
     /* ---------- YES CLICK ---------- */
     yesBtn.addEventListener("click", () => {
       zone.style.display = "none";
-      hint.style.display = "none";     // HIDE THE HINT
-      result.style.display = "block";
+      hint.style.display = "none";
+      pageIndex = 0;
+      renderPage(pageIndex);
       resizeConfettiCanvas();
       fullScreenConfetti();
     });
   </script>
 </body>
 </html>
-
-
